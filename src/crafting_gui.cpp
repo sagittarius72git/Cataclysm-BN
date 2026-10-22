@@ -11,6 +11,7 @@
 #include "character_functions.h"
 #include "color.h"
 #include "crafting.h"
+#include "crafting_missing_parts.h"
 #include "crafting_quality.h"
 #include "cursesdef.h"
 #include "game.h"
@@ -664,6 +665,8 @@ static input_context make_crafting_context( bool highlight_unread_recipes )
     ctxt.register_action( "COMPARE" );
     ctxt.register_action( "TOGGLE_UNAVAILABLE" );
     ctxt.register_action( "ASSIGN_NPC_CRAFT", to_translation( "Assign nearest NPC to craft" ) );
+    // 足りない部品を作ってから目標を作る / Craft the missing parts, then the recipe
+    ctxt.register_action( "CRAFT_MISSING_PARTS", to_translation( "Craft missing parts" ) );
     if( highlight_unread_recipes ) {
         ctxt.register_action( "TOGGLE_RECIPE_UNREAD" );
         ctxt.register_action( "MARK_ALL_RECIPES_READ" );
@@ -820,6 +823,7 @@ const recipe *select_crafting_recipe( int &batch_size_out, Character &crafter )
         add_action_desc( "TOGGLE_FAVORITE", pgettext( "crafting gui", "Favorite" ) );
         add_action_desc( "CYCLE_BATCH", pgettext( "crafting gui", "Batch" ) );
         add_action_desc( "COMPARE", pgettext( "crafting gui", "Compare" ) );
+        add_action_desc( "CRAFT_MISSING_PARTS", pgettext( "crafting gui", "Craft missing parts" ) );
         add_action_desc( "TOGGLE_UNAVAILABLE", pgettext( "crafting gui", "Show unavailable" ) );
         add_action_desc( "HELP_KEYBINDINGS", pgettext( "crafting gui", "Keybindings" ) );
         keybinding_x = isWide ? 5 : 2;
@@ -1599,6 +1603,16 @@ const recipe *select_crafting_recipe( int &batch_size_out, Character &crafter )
                         done = true;
                     }
                 }
+            }
+        } else if( action == "CRAFT_MISSING_PARTS" ) {
+            // 足りない部品を本体の製作で1回ずつ作り、そろったら目標を作る。
+            // Crafts the missing parts one regular craft at a time, then crafts the recipe.
+            if( current.empty() || available[line].is_nested_category || current[line]->is_nested() ) {
+                popup( _( "Select a recipe first." ) );
+            } else if( crafting_missing_parts::start_for_recipe( crafter, *current[line],
+                       ( batch ) ? line + 1 : 1 ) ) {
+                chosen = nullptr;
+                done = true;
             }
         } else if( action == "HELP_RECIPE" ) {
             if( current.empty() ) {
