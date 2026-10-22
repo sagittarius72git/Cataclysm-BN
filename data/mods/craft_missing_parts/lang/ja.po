@@ -1,0 +1,131 @@
+# Japanese translation for the "Craft Missing Parts" mod.
+# Author: sagittarius72
+# Assisted-by: Claude:claude-opus-5-5
+msgid ""
+msgstr ""
+"Project-Id-Version: craft_missing_parts\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Craft Missing Parts"
+msgstr "足りない部品を作る"
+
+msgid "Choose an item to craft or something to build, and the parts you are missing are crafted for you, going back through parts of parts as needed.  Crafting works just like the crafting menu.  Open it from the action menu (\"Craft missing parts\").  Needs a game version with the Lua crafting functions from PR #10477."
+msgstr "作りたい品や建設したいものを選ぶと、足りない部品を自動で作ってそろえます。部品の部品が足りなければ、さかのぼって作ります。製作は製作メニューから作るときと同じです。アクションメニューの「足りない部品を作る」から開きます。PR #10477 のLua製作機能が入った本体が必要です。"
+
+msgid "Craft missing parts"
+msgstr "足りない部品を作る"
+
+msgid "Crafts the parts you are missing, using items you carry and within 6 tiles."
+msgstr "手持ちと周り6マス以内の物を使って、足りない部品を作ります。"
+
+msgid "Choose an item to craft"
+msgstr "作りたい品を選ぶ"
+
+msgid "Choose something to build"
+msgstr "建設したいものを選ぶ"
+
+msgid "Continue: %s"
+msgstr "続きから：%s"
+
+msgid "Now gathering the parts for %s."
+msgstr "%sの部品を集めています。"
+
+msgid "Stop"
+msgstr "やめる"
+
+msgid "Stopped gathering parts."
+msgstr "部品集めをやめました。"
+
+msgid "Item to craft"
+msgstr "作りたい品"
+
+msgid "Type part of the item name.  Leave it empty to list every recipe you know."
+msgstr "アイテム名の一部を入力してください。空欄なら、知っているレシピを全部出します。"
+
+msgid "No matching recipes.  Only recipes you know are listed."
+msgstr "当てはまるレシピがありません。出せるのは、あなたが知っているレシピだけです。"
+
+msgid "Construction"
+msgstr "建設"
+
+msgid "Type part of the construction name.  Leave it empty to list everything."
+msgstr "建設の名前の一部を入力してください。空欄なら全部出します。"
+
+msgid "No matching constructions."
+msgstr "当てはまる建設がありません。"
+
+msgid "[ready]"
+msgstr "［作れる］"
+
+msgid "(skill too low)"
+msgstr "（技能不足）"
+
+msgid "(+%d more)"
+msgstr "（ほか%d件）"
+
+msgid "Target: %s"
+msgstr "目標：%s"
+
+msgid "Nothing is missing."
+msgstr "足りないものはありません。"
+
+msgid "Missing:"
+msgstr "足りないもの："
+
+msgid "  ...and %d more"
+msgstr "  …ほか%d件"
+
+msgid "can make"
+msgstr "作れる"
+
+msgid "no way to make"
+msgstr "作り方なし"
+
+msgid "Tool qualities needed (not crafted automatically): %s"
+msgstr "必要な道具の品質（自動では作りません）：%s"
+
+msgid "Start?  Parts are crafted one at a time, like crafting from the menu."
+msgstr "始めますか？　部品は1つずつ、製作メニューから作るのと同じように作ります。"
+
+msgid "Started gathering the parts for %s."
+msgstr "%sの部品集めを始めました。"
+
+msgid "Making %s for %s."
+msgstr "%sを作ります（%sの部品）。"
+
+msgid "All parts are ready.  Crafting %s."
+msgstr "部品がそろいました。%sを作ります。"
+
+msgid "Finished crafting %s."
+msgstr "%sが完成しました。"
+
+msgid "All materials for %s are ready.  Build it from the construction menu."
+msgstr "%sの材料がそろいました。建設メニューから建ててください。"
+
+msgid "Could not start crafting %s."
+msgstr "%sの製作を始められませんでした。"
+
+msgid "Can't make the missing parts for %s.  Still missing: %s"
+msgstr "%sの部品をこれ以上作れません。まだ足りないもの：%s"
+
+msgid "The parts for %s are ready, but it still can't be made.  Check the tools (needed qualities: %s), skills and the recipe."
+msgstr "%sの部品はそろいましたが、まだ作れません。道具（必要な品質：%s）・技能・レシピを確認してください。"
+
+msgid "The parts for %s are ready, but it still can't be made.  Check your tools, skills and the recipe."
+msgstr "%sの部品はそろいましたが、まだ作れません。道具・技能・レシピを確認してください。"
+
+msgid "Stopped after making parts %d times.  Choose \"Continue\" in the menu to go on."
+msgstr "部品を%d回作ったので、いったん止めました。続けるときはメニューの「続きから」を選んでください。"
+
+msgid "Stopped: kept making %s over and over."
+msgstr "%sばかり作り続けているので止めました。"
+
+msgid "Crafting was interrupted or failed.  If there is an unfinished item, finish it first, then choose \"Continue\" in the menu."
+msgstr "製作が中断されたか、失敗しました。作りかけの品があれば先に仕上げてから、メニューの「続きから」を選んでください。"
+
+msgid "This mod needs a newer game version (Lua crafting functions from PR #10477).  It does nothing on this version."
+msgstr "このMODには、もっと新しい本体（PR #10477 のLua製作機能）が必要です。このバージョンでは何もしません。"
