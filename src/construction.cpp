@@ -12,6 +12,7 @@
 #include "construction_group.h"
 #include "construction_partial.h"
 #include "coordinates.h"
+#include "crafting_missing_parts.h"
 #include "crafting_quality.h"
 #include "cursesdef.h"
 #include "debug.h"
@@ -484,6 +485,10 @@ std::optional<construction_id> construction_menu( const bool blueprint )
     ctxt.register_action( "HELP_KEYBINDINGS" );
     ctxt.register_action( "FILTER" );
     ctxt.register_action( "RESET_FILTER" );
+    if( !blueprint ) {
+        // 材料を作ってそろえる / Craft the missing materials
+        ctxt.register_action( "CRAFT_MISSING_PARTS", to_translation( "Craft missing materials" ) );
+    }
 
     const std::vector<construction_category> &construct_cat = construction_categories::get_all();
     std::vector<size_t> construct_cat_order;
@@ -1347,6 +1352,11 @@ std::optional<construction_id> construction_menu( const bool blueprint )
                                                    _( "Press [<color_yellow>%s</color>] to add to favorites." ),
                                                    ctxt.get_desc( "TOGGLE_FAVORITE" ) ) ) );
             }
+            if( !blueprint ) {
+                notes.push_back( strip_period( string_format(
+                                                   _( "Press [<color_yellow>%s</color>] to craft the missing materials." ),
+                                                   ctxt.get_desc( "CRAFT_MISSING_PARTS" ) ) ) );
+            }
             notes.push_back( strip_period( string_format(
                                                _( "Press [<color_yellow>%s</color>] to view and edit keybindings." ),
                                                ctxt.get_desc( "HELP_KEYBINDINGS" ) ) ) );
@@ -1479,6 +1489,18 @@ std::optional<construction_id> construction_menu( const bool blueprint )
             hide_unconstructable = !hide_unconstructable;
             offset = 0;
             list_available_constructions( available, cat_available, hide_unconstructable );
+        } else if( action == "CRAFT_MISSING_PARTS" ) {
+            // 足りない材料を本体の製作で1回ずつ作ってそろえる（建てるのは自分で）。
+            // Crafts the missing materials one regular craft at a time (building is left to the player).
+            if( constructs.empty() || select >= static_cast<int>( constructs.size() ) ) {
+                continue;
+            }
+            if( crafting_missing_parts::start_for_construction( g->u,
+                    constructions_by_group( constructs[select] ) ) ) {
+                exit = true;
+            } else {
+                update_info = true;
+            }
         } else if( action == "CONFIRM" ) {
             if( constructs.empty() || select >= static_cast<int>( constructs.size() ) ) {
                 // Nothing to be done here

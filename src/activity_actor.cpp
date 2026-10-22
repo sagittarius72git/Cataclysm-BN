@@ -14,6 +14,7 @@
 #include "construction_partial.h"
 #include "craft_command.h"
 #include "crafting.h"
+#include "crafting_missing_parts.h"
 #include "crafting_quality.h"
 #include "debug.h"
 #include "enchantments/enchanter.h"
@@ -2439,6 +2440,10 @@ void craft_activity_actor::do_complete_craft( player_activity &act, Character &w
         if( who.making_would_work( rec->ident(), batch_size ) ) {
             who.last_craft->execute( abs_to_bub( location ) );
         }
+    } else if( rec ) {
+        // 「足りない部品を作る」の途中なら次の部品へ進む。
+        // Continue to the next part if "craft missing parts" is running.
+        crafting_missing_parts::on_craft_finished( who, *rec );
     }
 }
 
