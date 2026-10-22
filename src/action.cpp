@@ -156,6 +156,7 @@ std::string io::enum_to_string<action_id>( action_id data )
             PAIR( ACTION_SLEEP )
             PAIR( ACTION_CONTROL_VEHICLE )
             PAIR( ACTION_TOGGLE_AUTO_TRAVEL_MODE )
+            PAIR( ACTION_AUTO_EXPLORE )
             PAIR( ACTION_TOGGLE_SAFEMODE )
             PAIR( ACTION_TOGGLE_AUTOSAFE )
             PAIR( ACTION_TOGGLE_THIEF_MODE )
@@ -424,6 +425,8 @@ std::string action_ident( action_id act )
             return "control_vehicle";
         case ACTION_TOGGLE_AUTO_TRAVEL_MODE:
             return "auto_travel_mode";
+        case ACTION_AUTO_EXPLORE:
+            return "auto_explore";
         case ACTION_TOGGLE_SAFEMODE:
             return "safemode";
         case ACTION_TOGGLE_AUTOSAFE:
@@ -1186,7 +1189,7 @@ action_id handle_action_menu()
         } else if( category_id == "misc" ) {
             register_actions( {
                 ACTION_WAIT, ACTION_SLEEP, ACTION_BIONICS, ACTION_MUTATIONS, ACTION_PERKS,
-                ACTION_CONTROL_VEHICLE, ACTION_ITEMACTION, ACTION_TOGGLE_THIEF_MODE
+                ACTION_CONTROL_VEHICLE, ACTION_ITEMACTION, ACTION_TOGGLE_THIEF_MODE, ACTION_AUTO_EXPLORE
             } );
 #if defined(TILES)
             if( use_tiles ) {

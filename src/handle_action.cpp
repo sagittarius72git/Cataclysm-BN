@@ -2,6 +2,7 @@
 #include "advanced_inv.h"
 #include "animation.h"
 #include "armor_layers.h"
+#include "auto_explore.h"
 #include "auto_note.h"
 #include "auto_pickup.h"
 #include "avatar.h"
@@ -1950,6 +1951,9 @@ bool game::handle_action()
             // starts destination activity after the player successfully reached his destination
             u.start_destination_activity();
             return false;
+        } else if( auto_explore::continue_exploring( u, m ) ) {
+            // 自動探索の次の移動先へ / Next leg of auto explore
+            return false;
         } else {
             ZoneScopedN( "handle_action_get_player_input" );
             // No auto-move, ask player for input
@@ -2801,6 +2805,11 @@ bool game::handle_action()
             case ACTION_TOGGLE_AUTO_TRAVEL_MODE:
                 auto_travel_mode = !auto_travel_mode;
                 add_msg( m_info, auto_travel_mode ? _( "Auto travel mode ON!" ) : _( "Auto travel mode OFF!" ) );
+                break;
+
+            case ACTION_AUTO_EXPLORE:
+                // まだ見ていない場所へ自動で歩く / Auto-move toward unexplored places
+                auto_explore::start( u, m );
                 break;
 
             case ACTION_TOGGLE_SAFEMODE:
