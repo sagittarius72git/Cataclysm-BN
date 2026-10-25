@@ -177,7 +177,7 @@ auto alt_key( const need_alt &a ) -> std::string
     if( a.kind == need_kind::quality ) {
         return string_format( "q:%s:%d", a.quality.str(), a.level );
     }
-    return "i:" + a.type.str();
+    return string_format( "i:%s:%d", a.type.str(), a.short_by );
 }
 
 /// 作る対象にしてよい候補か（量で使う道具のチャージは作らない）。
@@ -272,60 +272,96 @@ class planner
             return missing_groups( req, inv, filter );
         }
 
-        /// 1. 足りない部品そのもので、今すぐ作れるレシピ
-        /// 2. なければ、知っているレシピの材料（部品の部品）へさかのぼる
-        /// 1. a recipe for a missing part that can be crafted now
-        /// 2. otherwise, go back through the parts of known recipes
+        /// 足りないものを全部そろえられるか調べて、最初に作るレシピを返す。
+        /// 1つでもそろえられないものがあれば nullptr（途中までしか作れない部品は作らない）。
+        /// Checks that every missing requirement can be made and returns the first recipe to craft.
+        /// Returns nullptr if any of them can't be made (so it never makes parts for a dead end).
         auto find_step( const std::vector<need_group> &missing, int depth ) -> const recipe * { // *NOPAD*
             if( depth > max_depth ) {
                 return nullptr;
             }
+            const recipe *first = nullptr;
             for( const auto &grp : missing ) {
-                for( const auto &a : grp ) {
-                    if( !craftable( a ) ) {
-                        continue;
-                    }
-                    for( const auto *r : producers( a ) ) {
-                        if( visiting.contains( r->result() ) ) {
-                            continue;
-                        }
-                        if( --budget < 0 ) {
-                            return nullptr;
-                        }
-                        if( who.can_make( r, 1 ) ) {
-                            return r;
-                        }
-                    }
+                const auto *step = step_for_group( grp, depth );
+                if( !step ) {
+                    return nullptr;
+                }
+                if( !first ) {
+                    first = step;
                 }
             }
-            for( const auto &grp : missing ) {
+            return first;
+        }
+
+    private:
+        /// 足りないもの1つ（候補のどれか）をそろえる最初のレシピ。
+        /// 1. 材料が今そろっているレシピ  2. なければ、材料も作れるレシピ
+        /// The first recipe that leads to one missing requirement (any alternative).
+        /// 1. a recipe whose ingredients are all here  2. otherwise, one whose ingredients can be made
+        auto step_for_group( const need_group &grp, int depth ) -> const recipe * { // *NOPAD*
+            for( const auto deep : { false, true } ) {
                 for( const auto &a : grp ) {
                     const auto key = alt_key( a );
                     if( !craftable( a ) || dead.contains( key ) ) {
                         continue;
                     }
                     for( const auto *r : producers( a ) ) {
-                        if( budget < 0 ) {
+                        if( --budget < 0 ) {
                             return nullptr;
                         }
                         if( visiting.contains( r->result() ) || who.has_recipe( r, inv, helpers ) < 0 ) {
                             continue;
                         }
+                        const auto crafts = crafts_needed( a, *r );
+                        if( crafts > max_same ) {
+                            continue;
+                        }
+                        // 必要な回数ぶんの材料で調べる。 / Check ingredients for all the crafts needed.
+                        const auto sub = missing_groups( r->simple_requirements() * crafts, inv,
+                                                         r->get_component_filter() );
+                        if( sub.empty() ) {
+                            if( who.can_make( r, 1 ) ) {
+                                return r;
+                            }
+                            continue;
+                        }
+                        if( !deep ) {
+                            continue;
+                        }
                         visiting.insert( r->result() );
-                        const auto *found = find_step( missing_groups( r->simple_requirements(), inv,
-                                                       r->get_component_filter() ), depth + 1 );
+                        const auto *found = find_step( sub, depth + 1 );
                         visiting.erase( r->result() );
                         if( found ) {
                             return found;
                         }
                     }
-                    dead.insert( key );
+                    if( deep ) {
+                        dead.insert( key );
+                    }
                 }
             }
             return nullptr;
         }
 
-    private:
+        /// 足りない分をそろえるのに、そのレシピを何回作るか。
+        /// How many times the recipe must be crafted to cover the shortage.
+        auto crafts_needed( const need_alt &a, const recipe &r ) -> int {
+            if( a.kind != need_kind::component ) {
+                return 1;
+            }
+            auto it = made_per_craft.find( &r );
+            if( it == made_per_craft.end() ) {
+                auto made = 0;
+                for( const auto &res : r.create_results( 1 ) ) {
+                    if( res->typeId() == a.type ) {
+                        made += res->count_by_charges() ? res->charges : 1;
+                    }
+                }
+                it = made_per_craft.emplace( &r, std::max( made, 1 ) ).first;
+            }
+            return ( a.short_by + it->second - 1 ) / it->second;
+        }
+
         auto producers( const need_alt &a ) const -> std::vector<const recipe *> {
             if( a.kind != need_kind::quality ) {
                 const auto it = idx.by_result.find( a.type );
@@ -351,6 +387,7 @@ class planner
         int budget;
         std::set<itype_id> visiting;
         std::set<std::string> dead;
+        std::unordered_map<const recipe *, int> made_per_craft;
 };
 
 // ---------------------------------------------------------------------------
@@ -616,7 +653,7 @@ auto confirm_and_start( Character &who, const run_state &st ) -> bool
     text += "\n";
 
     if( p.find_step( missing, 1 ) == nullptr ) {
-        text += _( "None of the missing parts can be made right now." );
+        text += _( "Some of the missing parts can't be made, so nothing will be crafted." );
         popup( text );
         return false;
     }

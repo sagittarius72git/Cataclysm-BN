@@ -55,12 +55,15 @@ auto prepare_room(bool open_east) -> avatar& {
 }
 
 // 今の移動先へ一気に移って、自動移動を終えた状態にする。
+// 移った先で湧いた敵が見えて止まらないように、敵は消しておく。
 // Jumps to the end of the current auto-move route, as if the walk finished.
+// Removes monsters spawned by the move, so a far-away one in sight doesn't stop exploring.
 auto finish_leg(avatar& you, map& here) -> void {
     REQUIRE(you.has_destination());
     const auto dest = you.get_auto_move_route().back();
     you.clear_destination();
     g->place_player(dest);
+    clear_creatures();
     refresh_vision(you, here);
 }
 
