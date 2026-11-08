@@ -1138,6 +1138,7 @@ void Item_factory::init()
     add_actor( std::make_unique<unpack_actor>() );
     add_actor( std::make_unique<countdown_actor>() );
     add_actor( std::make_unique<manualnoise_actor>() );
+    add_actor( std::make_unique<passivenoise_actor>() );
     add_actor( std::make_unique<musical_instrument_actor>() );
     add_actor( std::make_unique<deploy_furn_actor>() );
     add_actor( std::make_unique<place_monster_iuse>() );
@@ -1364,6 +1365,11 @@ void Item_factory::check_definitions() const
             for( auto &b : type->seed->byproducts ) {
                 if( !has_template( b ) ) {
                     msg += string_format( "invalid byproduct id %s\n", b.c_str() );
+                }
+            }
+            for( const auto &flag : type->seed->harvest_inherit_flags ) {
+                if( !flag.is_valid() ) {
+                    msg += string_format( "invalid harvest inheritance flag %s\n", flag.c_str() );
                 }
             }
         }
@@ -2486,6 +2492,8 @@ void Item_factory::load( islot_seed &slot, const JsonObject &jo, const std::stri
     assign( jo, "seeds", slot.spawn_seeds );
     assign( jo, "byproducts", slot.byproducts );
     assign( jo, "required_terrain_flag", slot.required_terrain_flag );
+    assign( jo, "harvest_inherit_flags", slot.harvest_inherit_flags );
+    assign( jo, "harvest_inherit_poison", slot.harvest_inherit_poison );
 }
 
 void Item_factory::load( islot_container &slot, const JsonObject &jo, const std::string & )
